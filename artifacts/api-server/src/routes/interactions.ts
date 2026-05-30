@@ -1,13 +1,19 @@
 import { Router, type IRouter } from "express";
-import { desc, sql } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { db, interactionsTable } from "@workspace/db";
 import {
   CreateInteractionBody,
   DeleteInteractionParams,
 } from "@workspace/api-zod";
-import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
+
+// Helper to handle SQLite dates
+const parseDate = (d: any): Date => {
+  if (d instanceof Date) return d;
+  if (!d) return new Date();
+  return new Date(d);
+};
 
 // GET /interactions — list all
 router.get("/interactions", async (req, res): Promise<void> => {
@@ -19,7 +25,7 @@ router.get("/interactions", async (req, res): Promise<void> => {
   res.json(
     rows.map((r) => ({
       ...r,
-      createdAt: r.createdAt.toISOString(),
+      createdAt: parseDate(r.createdAt).toISOString(),
     }))
   );
 });
@@ -40,7 +46,7 @@ router.post("/interactions", async (req, res): Promise<void> => {
 
   res.status(201).json({
     ...row,
-    createdAt: row.createdAt.toISOString(),
+    createdAt: parseDate(row.createdAt).toISOString(),
   });
 });
 
@@ -65,8 +71,8 @@ router.get("/interactions/stats", async (_req, res): Promise<void> => {
     return;
   }
 
-  const firstDate = rows[0].createdAt;
-  const lastDate = rows[rows.length - 1].createdAt;
+  const firstDate = parseDate(rows[0].createdAt);
+  const lastDate = parseDate(rows[rows.length - 1].createdAt);
 
   const now = new Date();
   const msPerDay = 1000 * 60 * 60 * 24;
@@ -74,7 +80,7 @@ router.get("/interactions/stats", async (_req, res): Promise<void> => {
 
   // Unique days with at least one interaction
   const activeDaysSet = new Set(
-    rows.map((r) => r.createdAt.toISOString().slice(0, 10))
+    rows.map((r) => parseDate(r.createdAt).toISOString().slice(0, 10))
   );
   const totalDaysActive = activeDaysSet.size;
 
@@ -103,8 +109,8 @@ router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
     return;
   }
 
-  const firstDate = rows[0].createdAt;
-  const lastDate = rows[rows.length - 1].createdAt;
+  const firstDate = parseDate(rows[0].createdAt);
+  const lastDate = parseDate(rows[rows.length - 1].createdAt);
   const msPerDay = 1000 * 60 * 60 * 24;
   const spanDays = Math.floor((lastDate.getTime() - firstDate.getTime()) / msPerDay) + 1;
 
@@ -122,7 +128,7 @@ router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
   const buckets = new Map<string, { label: string; interactions: number; successes: number }>();
 
   for (const row of rows) {
-    const d = row.createdAt;
+    const d = parseDate(row.createdAt);
     let key: string;
     let label: string;
 
