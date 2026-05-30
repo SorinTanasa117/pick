@@ -1,0 +1,250 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: interactions
+    description: Interaction diary operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /interactions:
+    get:
+      operationId: listInteractions
+      tags: [interactions]
+      summary: List all interactions
+      responses:
+        "200":
+          description: List of interactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Interaction"
+    post:
+      operationId: createInteraction
+      tags: [interactions]
+      summary: Create a new interaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InteractionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Interaction"
+        "400":
+          description: Invalid input
+
+  /interactions/stats:
+    get:
+      operationId: getInteractionStats
+      tags: [interactions]
+      summary: Get aggregate statistics
+      responses:
+        "200":
+          description: Statistics object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InteractionStats"
+
+  /interactions/chart-data:
+    get:
+      operationId: getChartData
+      tags: [interactions]
+      summary: Get time-series chart data for graphs
+      responses:
+        "200":
+          description: Chart data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChartData"
+
+  /interactions/{id}:
+    delete:
+      operationId: deleteInteraction
+      tags: [interactions]
+      summary: Delete an interaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Interaction:
+      type: object
+      required:
+        - id
+        - height
+        - figure
+        - age
+        - company
+        - attitude
+        - myMood
+        - myPerformance
+        - space
+        - notes
+        - lessonLearned
+        - success
+        - createdAt
+      properties:
+        id:
+          type: integer
+        height:
+          type: integer
+        figure:
+          type: string
+        age:
+          type: integer
+        company:
+          type: string
+        attitude:
+          type: string
+        myMood:
+          type: string
+        myPerformance:
+          type: string
+        space:
+          type: string
+        notes:
+          type: string
+        lessonLearned:
+          type: string
+        success:
+          type: boolean
+        createdAt:
+          type: string
+
+    InteractionInput:
+      type: object
+      required:
+        - height
+        - figure
+        - age
+        - company
+        - attitude
+        - myMood
+        - myPerformance
+        - space
+        - notes
+        - lessonLearned
+        - success
+      properties:
+        height:
+          type: integer
+        figure:
+          type: string
+        age:
+          type: integer
+        company:
+          type: string
+        attitude:
+          type: string
+        myMood:
+          type: string
+        myPerformance:
+          type: string
+        space:
+          type: string
+        notes:
+          type: string
+        lessonLearned:
+          type: string
+        success:
+          type: boolean
+
+    InteractionStats:
+      type: object
+      required:
+        - totalInteractions
+        - firstInteractionDate
+        - lastInteractionDate
+        - totalDaysPassed
+        - totalDaysActive
+        - successRate
+      properties:
+        totalInteractions:
+          type: integer
+        firstInteractionDate:
+          type: ["string", "null"]
+        lastInteractionDate:
+          type: ["string", "null"]
+        totalDaysPassed:
+          type: integer
+        totalDaysActive:
+          type: integer
+        successRate:
+          type: number
+
+    ChartDataPoint:
+      type: object
+      required:
+        - label
+        - interactions
+        - successes
+        - successRate
+      properties:
+        label:
+          type: string
+        interactions:
+          type: integer
+        successes:
+          type: integer
+        successRate:
+          type: number
+
+    ChartData:
+      type: object
+      required:
+        - granularity
+        - points
+      properties:
+        granularity:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChartDataPoint"
