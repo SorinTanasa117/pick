@@ -1,10 +1,13 @@
 import { defineConfig } from "drizzle-kit";
 import path from "path";
 
+const databaseUrl = process.env.DATABASE_URL;
+
 export default defineConfig({
   schema: path.join(__dirname, "./src/schema/index.ts"),
-  dialect: "postgresql",
-  dbCredentials: {
-    url: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_GbVm1jeIpTC9@ep-wild-morning-alwajrti.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-  },
+  dialect: databaseUrl && databaseUrl.startsWith("postgres") ? "postgresql" : "sqlite",
+  dbCredentials:
+    databaseUrl && databaseUrl.startsWith("postgres")
+      ? { url: databaseUrl }
+      : { url: path.join(__dirname, "../../sqlite.db") },
 });

@@ -1,10 +1,29 @@
 import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
+import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import * as schema from "./schema";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const databaseUrl = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_GbVm1jeIpTC9@ep-wild-morning-alwajrti.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require";
+const databaseUrl = process.env.DATABASE_URL;
 
-const sql = neon(databaseUrl);
-export const db = drizzle(sql, { schema });
+let dbInstance: any;
+let table: any;
 
+if (databaseUrl && databaseUrl.startsWith("postgres")) {
+  const sql = neon(databaseUrl);
+  dbInstance = drizzleNeon(sql, { schema });
+  table = schema.interactionsTablePg;
+} else {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const dbPath = path.resolve(__dirname, "../../../sqlite.db");
+  const sqlite = new Database(dbPath);
+  dbInstance = drizzleSqlite(sqlite, { schema });
+  table = schema.interactionsTableSqlite;
+}
+
+export const db = dbInstance;
+export const interactionsTable = table;
 export * from "./schema";

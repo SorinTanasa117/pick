@@ -57,7 +57,7 @@ export default function Dashboard() {
           <StatCard title="Avg interactions/day" value={stats?.totalDaysActive ? (stats.totalInteractions / stats.totalDaysActive).toFixed(2) : undefined} loading={statsLoading} />
           <StatCard title="First interaction" value={stats?.firstInteractionDate ? format(new Date(stats.firstInteractionDate), 'MMM d, yyyy') : undefined} loading={statsLoading} />
           <StatCard title="Last interaction" value={stats?.lastInteractionDate ? format(new Date(stats.lastInteractionDate), 'MMM d, yyyy') : undefined} loading={statsLoading} />
-          <div className="col-span-2 flex justify-center">
+          <div className="col-span-full flex justify-center">
             <div className="w-full max-w-[200px]">
               <StatCard title="Days passed" value={stats?.totalDaysPassed} loading={statsLoading} centered />
             </div>
