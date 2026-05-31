@@ -1,7 +1,7 @@
 [build]
-  command = "pnpm run build"
-  publish = "artifacts/diary/dist"
-  functions = "netlify/functions"
+  command = "cd ../.. && pnpm run build"
+  publish = "dist"
+  functions = "../../netlify/functions"
 
 [[redirects]]
   from = "/api/*"
