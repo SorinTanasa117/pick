@@ -21,7 +21,7 @@ export const interactionsTable = sqliteTable("interactions", {
     .default(sql`(datetime('now'))`),
 });
 
-export const insertInteractionSchema = createInsertSchema(interactionsTable).omit({
+export const insertInteractionSchema = (createInsertSchema(interactionsTable) as any).omit({
   id: true,
   createdAt: true,
 });
