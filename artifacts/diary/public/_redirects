@@ -1,0 +1,8 @@
+/*
+  * Redirects for Netlify
+  * Forward all /api requests to the backend server (if hosted elsewhere or using functions)
+  * and ensure SPA routing works by redirecting all other requests to index.html.
+  */
+
+/api/*  /.netlify/functions/api/:splat  200
+/*      /index.html                     200
