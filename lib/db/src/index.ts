@@ -1,17 +1,10 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from "./schema";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const databaseUrl = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_GbVm1jeIpTC9@ep-wild-morning-alwajrti.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require";
 
-// Use an environment variable for the database path if provided,
-// otherwise default to sqlite.db in the workspace root.
-const dbPath =
-  process.env.DATABASE_URL || path.resolve(__dirname, "../../../sqlite.db");
-const sqlite = new Database(dbPath);
-export const db = drizzle(sqlite, { schema });
+const sql = neon(databaseUrl);
+export const db = drizzle(sql, { schema });
 
 export * from "./schema";

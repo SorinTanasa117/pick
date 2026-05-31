@@ -1,10 +1,10 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, timestamp, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
 
-export const interactionsTable = sqliteTable("interactions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const interactionsTable = pgTable("interactions", {
+  id: serial("id").primaryKey(),
   height: integer("height").notNull(),
   figure: text("figure").notNull(),
   age: integer("age").notNull(),
@@ -15,10 +15,10 @@ export const interactionsTable = sqliteTable("interactions", {
   space: text("space").notNull(),
   notes: text("notes").notNull().default(""),
   lessonLearned: text("lesson_learned").notNull().default(""),
-  success: integer("success", { mode: "boolean" }).notNull().default(false),
-  createdAt: text("created_at")
+  success: boolean("success").notNull().default(false),
+  createdAt: timestamp("created_at")
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .defaultNow(),
 });
 
 export const insertInteractionSchema = (createInsertSchema(interactionsTable) as any).omit({
