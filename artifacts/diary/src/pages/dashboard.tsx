@@ -44,6 +44,9 @@ export default function Dashboard() {
           <StatCard title="Success rate" value={stats ? `${(stats.successRate * 100).toFixed(2)}%` : undefined} loading={statsLoading} />
           <StatCard title="Days active" value={stats?.totalDaysActive} loading={statsLoading} />
           <StatCard title="Days passed" value={stats?.totalDaysPassed} loading={statsLoading} />
+          <StatCard title="Avg interactions/day" value={stats?.totalDaysActive ? (stats.totalInteractions / stats.totalDaysActive).toFixed(2) : undefined} loading={statsLoading} />
+          <StatCard title="First interaction" value={stats?.firstInteractionDate ? format(new Date(stats.firstInteractionDate), 'MMM d, yyyy') : undefined} loading={statsLoading} />
+          <StatCard title="Last interaction" value={stats?.lastInteractionDate ? format(new Date(stats.lastInteractionDate), 'MMM d, yyyy') : undefined} loading={statsLoading} />
         </section>
 
         {/* Charts */}
@@ -55,7 +58,7 @@ export default function Dashboard() {
             <CardContent className="h-[200px] w-full">
               {chartLoading ? (
                 <div className="h-full w-full animate-pulse bg-muted rounded-md" />
-              ) : chartData && chartData.points.length > 0 ? (
+              ) : chartData?.points && chartData.points.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData.points}>
                     <XAxis dataKey="label" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
@@ -80,7 +83,7 @@ export default function Dashboard() {
             <CardContent className="h-[200px] w-full">
               {chartLoading ? (
                 <div className="h-full w-full animate-pulse bg-muted rounded-md" />
-              ) : chartData && chartData.points.length > 0 ? (
+              ) : chartData?.points && chartData.points.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData.points}>
                     <XAxis dataKey="label" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
@@ -106,10 +109,10 @@ export default function Dashboard() {
           <div className="space-y-3">
             {interactionsLoading ? (
               Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />)
-            ) : interactions?.length === 0 ? (
+            ) : !Array.isArray(interactions) || interactions.length === 0 ? (
               <p className="text-muted-foreground text-sm">No encounters recorded yet.</p>
             ) : (
-              interactions?.map((interaction) => (
+              interactions.map((interaction) => (
                 <Card key={interaction.id} className="relative overflow-hidden group">
                   <div className={`absolute top-0 left-0 w-1 h-full ${interaction.success ? 'bg-success' : 'bg-destructive'}`} />
                   <CardContent className="p-4 pl-5">
