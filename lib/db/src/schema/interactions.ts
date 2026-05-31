@@ -1,10 +1,12 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, timestamp, serial } from "drizzle-orm/pg-core";
+import { sqliteTable, text as sqliteText, integer as sqliteInteger } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
 
-export const interactionsTable = sqliteTable("interactions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+// PostgreSQL Schema
+export const interactionsTablePg = pgTable("interactions", {
+  id: serial("id").primaryKey(),
   height: integer("height").notNull(),
   figure: text("figure").notNull(),
   age: integer("age").notNull(),
@@ -15,15 +17,34 @@ export const interactionsTable = sqliteTable("interactions", {
   space: text("space").notNull(),
   notes: text("notes").notNull().default(""),
   lessonLearned: text("lesson_learned").notNull().default(""),
-  success: integer("success", { mode: "boolean" }).notNull().default(false),
-  createdAt: text("created_at")
+  success: boolean("success").notNull().default(false),
+  createdAt: timestamp("created_at")
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .defaultNow(),
 });
 
-export const insertInteractionSchema = (createInsertSchema(interactionsTable) as any).omit({
+// SQLite Schema (mapping for compatibility)
+export const interactionsTableSqlite = sqliteTable("interactions", {
+  id: sqliteInteger("id").primaryKey({ autoIncrement: true }),
+  height: sqliteInteger("height").notNull(),
+  figure: sqliteText("figure").notNull(),
+  age: sqliteInteger("age").notNull(),
+  company: sqliteText("company").notNull(),
+  attitude: sqliteText("attitude").notNull(),
+  myMood: sqliteText("my_mood").notNull(),
+  myPerformance: sqliteText("my_performance").notNull(),
+  space: sqliteText("space").notNull(),
+  notes: sqliteText("notes").notNull().default(""),
+  lessonLearned: sqliteText("lesson_learned").notNull().default(""),
+  success: sqliteInteger("success", { mode: "boolean" }).notNull().default(false),
+  createdAt: sqliteText("created_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const insertInteractionSchema = (createInsertSchema(interactionsTablePg) as any).omit({
   id: true,
   createdAt: true,
 });
 export type InsertInteraction = z.infer<typeof insertInteractionSchema>;
-export type Interaction = typeof interactionsTable.$inferSelect;
+export type Interaction = typeof interactionsTablePg.$inferSelect;

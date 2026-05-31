@@ -23,7 +23,7 @@ router.get("/interactions", async (req, res): Promise<void> => {
     .orderBy(desc(interactionsTable.createdAt));
 
   res.json(
-    rows.map((r) => ({
+    rows.map((r: any) => ({
       ...r,
       createdAt: parseDate(r.createdAt).toISOString(),
     }))
@@ -80,11 +80,11 @@ router.get("/interactions/stats", async (_req, res): Promise<void> => {
 
   // Unique days with at least one interaction
   const activeDaysSet = new Set(
-    rows.map((r) => parseDate(r.createdAt).toISOString().slice(0, 10))
+    rows.map((r: any) => parseDate(r.createdAt).toISOString().slice(0, 10))
   );
   const totalDaysActive = activeDaysSet.size;
 
-  const successes = rows.filter((r) => r.success).length;
+  const successes = rows.filter((r: any) => r.success).length;
   const successRate = total > 0 ? Math.round((successes / total) * 100) / 100 : 0;
 
   res.json({
