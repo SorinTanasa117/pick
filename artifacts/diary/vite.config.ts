@@ -66,10 +66,12 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    // FIXED: Proxy now correctly forwards api requests to your Express backend on port 3000
     proxy: {
       "/api": {
-        target: `http://localhost:3001`,
+        target: "http://127.0.0.1:3000",
         changeOrigin: true,
+        secure: false,
       },
     },
   },
