@@ -18,4 +18,5 @@ export interface Correlation {
   type: CorrelationType;
   description?: string;
   bestSubValue?: string;
+  mostCommonValue?: string;
 }

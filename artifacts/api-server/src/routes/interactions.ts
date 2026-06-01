@@ -253,14 +253,15 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
     const rows = allRows.slice(0, limit);
 
     const fieldsToAnalyze = [
-      { key: "height", label: "Height", type: "numeric" },
-      { key: "age", label: "Age", type: "numeric" },
-      { key: "figure", label: "Figure", type: "ordinal" },
-      { key: "attitude", label: "Attitude", type: "ordinal" },
-      { key: "myMood", label: "Mood", type: "ordinal" },
-      { key: "myPerformance", label: "Performance", type: "ordinal" },
-      { key: "space", label: "Space", type: "ordinal" },
-      { key: "company", label: "Company", type: "ordinal" },
+      { key: "face", label: "Her face", type: "numeric" },
+      { key: "age", label: "Her age", type: "numeric" },
+      { key: "height", label: "Her height", type: "numeric" },
+      { key: "figure", label: "Her figure", type: "ordinal" },
+      { key: "company", label: "Her company", type: "ordinal" },
+      { key: "attitude", label: "Her attitude", type: "ordinal" },
+      { key: "myMood", label: "My mood", type: "ordinal" },
+      { key: "myPerformance", label: "My performance", type: "ordinal" },
+      { key: "space", label: "The space", type: "ordinal" },
     ];
 
     const MAPPINGS: Record<string, Record<string, number>> = {
@@ -317,21 +318,28 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
       const r = calculateCorrelation(x, y);
       const ci = calculateConfidenceInterval(r, x.length);
 
-      // Determine best sub-value
+      // Determine best sub-value and most common value
       let bestSubValue = "";
       let maxSuccesses = 0;
-      let modeValue = "";
+      let modeSuccessValue = "";
+
+      let mostCommonValue = "";
+      let maxTotal = 0;
 
       for (const [val, stats] of Object.entries(categoricalCounts)) {
         if (stats.successes > maxSuccesses) {
           maxSuccesses = stats.successes;
-          modeValue = val;
+          modeSuccessValue = val;
+        }
+        if (stats.total > maxTotal) {
+          maxTotal = stats.total;
+          mostCommonValue = val;
         }
       }
 
       // If no value is more than 2 times present, leave it blank
       if (maxSuccesses > 2) {
-        bestSubValue = modeValue;
+        bestSubValue = modeSuccessValue;
       }
 
       // Generate description
@@ -360,6 +368,7 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
         type: field.type === "numeric" ? "numeric" : "categorical",
         description,
         bestSubValue,
+        mostCommonValue,
       };
     });
 

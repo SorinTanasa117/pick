@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 // PostgreSQL Schema
 export const interactionsTablePg = pgTable("interactions", {
   id: serial("id").primaryKey(),
+  face: integer("face").notNull().default(7),
   height: integer("height").notNull(),
   figure: text("figure").notNull(),
   age: integer("age").notNull(),
@@ -24,6 +25,7 @@ export const interactionsTablePg = pgTable("interactions", {
 // SQLite Schema (mapping for compatibility)
 export const interactionsTableSqlite = sqliteTable("interactions", {
   id: sqliteInteger("id").primaryKey({ autoIncrement: true }),
+  face: sqliteInteger("face").notNull().default(7),
   height: sqliteInteger("height").notNull(),
   figure: sqliteText("figure").notNull(),
   age: sqliteInteger("age").notNull(),

@@ -22,6 +22,7 @@ export const HealthCheckResponse = zod.object({
  */
 export const ListInteractionsResponseItem = zod.object({
   "id": zod.number(),
+  "face": zod.number(),
   "height": zod.number(),
   "figure": zod.string(),
   "age": zod.number(),
@@ -42,6 +43,7 @@ export const ListInteractionsResponse = zod.array(ListInteractionsResponseItem)
  * @summary Create a new interaction
  */
 export const CreateInteractionBody = zod.object({
+  "face": zod.number(),
   "height": zod.number(),
   "figure": zod.string(),
   "age": zod.number(),
@@ -97,7 +99,8 @@ export const GetCorrelationsResponseItem = zod.object({
   "confidenceInterval": zod.array(zod.number()).min(getCorrelationsResponseConfidenceIntervalMin).max(getCorrelationsResponseConfidenceIntervalMax),
   "type": zod.enum(['numeric', 'categorical']),
   "description": zod.string().optional(),
-  "bestSubValue": zod.string().optional()
+  "bestSubValue": zod.string().optional(),
+  "mostCommonValue": zod.string().optional()
 })
 export const GetCorrelationsResponse = zod.array(GetCorrelationsResponseItem)
 

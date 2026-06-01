@@ -15,6 +15,7 @@ import { format } from "date-fns";
 export function AddInteractionSheet() {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<InteractionInput & { createdAt?: string }>({
+    face: 7,
     height: 160,
     figure: "Normal",
     age: 22,
@@ -36,6 +37,7 @@ export function AddInteractionSheet() {
   const handleOpenChange = (o: boolean) => {
     if (o) {
       setFormData({
+        face: 7,
         height: 160,
         figure: "Normal",
         age: 22,
@@ -97,7 +99,39 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>Her Height</Label>
+            <div className="flex justify-between items-center">
+              <Label>Her face</Label>
+              <span className="text-xl font-bold font-mono text-primary">{formData.face}</span>
+            </div>
+            <div className="pt-2">
+              <Slider
+                min={5}
+                max={10}
+                step={1}
+                value={[formData.face]}
+                onValueChange={(val) => updateField('face', val[0])}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label>Her age</Label>
+              <span className="text-xl font-bold font-mono text-primary">{formData.age}</span>
+            </div>
+            <div className="pt-2">
+              <Slider
+                min={18}
+                max={35}
+                step={1}
+                value={[formData.age]}
+                onValueChange={(val) => updateField('age', val[0])}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Her height</Label>
             <Select value={formData.height.toString()} onValueChange={(val) => updateField('height', parseInt(val, 10))}>
               <SelectTrigger>
                 <SelectValue placeholder="Height" />
@@ -113,7 +147,7 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>Her Figure</Label>
+            <Label>Her figure</Label>
             <SegmentedPicker 
               options={["Super thin", "Slim", "Normal", "Slightly chubby"]} 
               value={formData.figure} 
@@ -123,23 +157,7 @@ export function AddInteractionSheet() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>Her Age</Label>
-              <span className="text-xl font-bold font-mono text-primary">{formData.age}</span>
-            </div>
-            <div className="pt-2">
-              <Slider 
-                min={18}
-                max={35}
-                step={1}
-                value={[formData.age]} 
-                onValueChange={(val) => updateField('age', val[0])}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label>Her Company</Label>
+              <Label>Her company</Label>
               <span className="text-sm font-bold text-primary">{formData.company}</span>
             </div>
             <div className="pt-2">
@@ -163,7 +181,7 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>Her Attitude</Label>
+            <Label>Her attitude</Label>
             <SegmentedPicker 
               options={["Suspicious", "Open", "Friendly", "Flirt"]} 
               value={formData.attitude} 
@@ -172,7 +190,7 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>My Mood</Label>
+            <Label>My mood</Label>
             <SegmentedPicker 
               options={["Not feeling it", "Neutral", "Excited"]} 
               value={formData.myMood} 
@@ -181,7 +199,7 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>My Performance</Label>
+            <Label>My performance</Label>
             <SegmentedPicker 
               options={["Total wreck", "Fumbling", "OK", "Good", "Excellent"]} 
               value={formData.myPerformance} 
@@ -190,7 +208,7 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <Label>Space</Label>
+            <Label>The space</Label>
             <SegmentedPicker 
               options={["On street", "In park", "Metro station", "Meetup", "Club", "Naplavka", "Václavská"]} 
               value={formData.space} 
