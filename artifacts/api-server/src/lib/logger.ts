@@ -9,14 +9,4 @@ export const logger = pino({
     "req.headers.cookie",
     "res.headers['set-cookie']",
   ],
-  // In production (Netlify), we avoid transports which use worker threads/external files
-  // that can fail to resolve in serverless environments.
-  ...(isProduction || process.env.NETLIFY || process.env.LAMBDA_TASK_ROOT
-    ? {}
-    : {
-        transport: {
-          target: "pino-pretty",
-          options: { colorize: true },
-        },
-      }),
 });
