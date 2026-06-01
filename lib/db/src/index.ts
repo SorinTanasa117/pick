@@ -12,19 +12,41 @@ let table: any;
 async function initDb() {
   if (dbInstance) return { dbInstance, table };
 
-  if (databaseUrl && databaseUrl.startsWith("postgres")) {
-    const sql = neon(databaseUrl);
-    dbInstance = drizzleNeon(sql, { schema });
-    table = schema.interactionsTablePg;
-  } else {
+  try {
+    if (databaseUrl && databaseUrl.startsWith("postgres")) {
+      console.log("Initializing database with Postgres (Neon)");
+      // Strip potentially problematic parameters for the serverless HTTP driver
+      // such as sslmode=require and channel_binding=require if they are present
+      let cleanUrl = databaseUrl;
+      try {
+        const url = new URL(databaseUrl);
+        url.searchParams.delete("sslmode");
+        url.searchParams.delete("channel_binding");
+        cleanUrl = url.toString();
+        console.log("Cleaned DATABASE_URL for Neon HTTP driver");
+      } catch (e) {
+        console.error("Failed to parse DATABASE_URL as URL object", e);
+      }
+
+      const sql = neon(cleanUrl);
+      dbInstance = drizzleNeon(sql, { schema });
+      table = schema.interactionsTablePg;
+      console.log("Postgres (Neon) initialization successful");
+    } else {
+      console.log("Initializing database with SQLite");
     const { drizzle: drizzleSqlite } = await import('drizzle-orm/better-sqlite3');
     const Database = (await import('better-sqlite3')).default;
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const dbPath = path.resolve(__dirname, "../../../sqlite.db");
-    const sqlite = new Database(dbPath);
-    dbInstance = drizzleSqlite(sqlite, { schema });
-    table = schema.interactionsTableSqlite;
+      const sqlite = new Database(dbPath);
+      dbInstance = drizzleSqlite(sqlite, { schema });
+      table = schema.interactionsTableSqlite;
+      console.log("SQLite initialization successful");
+    }
+  } catch (error) {
+    console.error("Database initialization failed:", error);
+    throw error;
   }
   return { dbInstance, table };
 }
@@ -49,6 +71,6 @@ export const getInteractionsTable = async () => {
 };
 
 // Deprecated: use async getters instead
-export const db = dbInstance;
-export const interactionsTable = table;
+export const db = undefined as any;
+export const interactionsTable = undefined as any;
 export * from "./schema";

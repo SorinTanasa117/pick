@@ -19,57 +19,68 @@ const parseDate = (d: any): Date => {
 
 // GET /interactions — list all
 router.get("/interactions", async (req, res): Promise<void> => {
-  const db = await getDb();
-  const interactionsTable = await getInteractionsTable();
-  const rows = await db
-    .select()
-    .from(interactionsTable)
-    .orderBy(desc(interactionsTable.createdAt));
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const rows = await db
+      .select()
+      .from(interactionsTable)
+      .orderBy(desc(interactionsTable.createdAt));
 
-  res.json(
-    rows.map((r: any) => ({
-      ...r,
-      createdAt: parseDate(r.createdAt).toISOString(),
-    }))
-  );
+    res.json(
+      rows.map((r: any) => ({
+        ...r,
+        createdAt: parseDate(r.createdAt).toISOString(),
+      }))
+    );
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to fetch interactions");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
 });
 
 // POST /interactions — create
 router.post("/interactions", async (req, res): Promise<void> => {
-  const db = await getDb();
-  const interactionsTable = await getInteractionsTable();
-  const parsed = CreateInteractionBody.safeParse(req.body);
-  if (!parsed.success) {
-    req.log.warn({ errors: parsed.error.message }, "Invalid interaction input");
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const parsed = CreateInteractionBody.safeParse(req.body);
+    if (!parsed.success) {
+      req.log.warn({ errors: parsed.error.message }, "Invalid interaction input");
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const bodyCreatedAt = (req.body as any).createdAt;
+    const data = {
+      ...parsed.data,
+      createdAt: bodyCreatedAt ? (databaseUrl && databaseUrl.startsWith("postgres") ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00') : new Date(),
+    };
+
+    const [row] = await db
+      .insert(interactionsTable)
+      .values(data)
+      .returning();
+
+    res.status(201).json({
+      ...row,
+      createdAt: parseDate(row.createdAt).toISOString(),
+    });
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to create interaction");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
-
-  const bodyCreatedAt = (req.body as any).createdAt;
-  const data = {
-    ...parsed.data,
-    createdAt: bodyCreatedAt ? (databaseUrl && databaseUrl.startsWith("postgres") ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00') : new Date(),
-  };
-
-  const [row] = await db
-    .insert(interactionsTable)
-    .values(data)
-    .returning();
-
-  res.status(201).json({
-    ...row,
-    createdAt: parseDate(row.createdAt).toISOString(),
-  });
 });
 
 // GET /interactions/stats
-router.get("/interactions/stats", async (_req, res): Promise<void> => {
-  const db = await getDb();
-  const interactionsTable = await getInteractionsTable();
-  const rows = await db
-    .select()
-    .from(interactionsTable)
-    .orderBy(interactionsTable.createdAt);
+router.get("/interactions/stats", async (req, res): Promise<void> => {
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const rows = await db
+      .select()
+      .from(interactionsTable)
+      .orderBy(interactionsTable.createdAt);
 
   const total = rows.length;
 
@@ -101,24 +112,29 @@ router.get("/interactions/stats", async (_req, res): Promise<void> => {
   const successes = rows.filter((r: any) => r.success).length;
   const successRate = total > 0 ? Math.round((successes / total) * 100) / 100 : 0;
 
-  res.json({
-    totalInteractions: total,
-    firstInteractionDate: firstDate.toISOString(),
-    lastInteractionDate: lastDate.toISOString(),
-    totalDaysPassed,
-    totalDaysActive,
-    successRate,
-  });
+    res.json({
+      totalInteractions: total,
+      firstInteractionDate: firstDate.toISOString(),
+      lastInteractionDate: lastDate.toISOString(),
+      totalDaysPassed,
+      totalDaysActive,
+      successRate,
+    });
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to fetch stats");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
 });
 
 // GET /interactions/chart-data
-router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
-  const db = await getDb();
-  const interactionsTable = await getInteractionsTable();
-  const rows = await db
-    .select()
-    .from(interactionsTable)
-    .orderBy(interactionsTable.createdAt);
+router.get("/interactions/chart-data", async (req, res): Promise<void> => {
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const rows = await db
+      .select()
+      .from(interactionsTable)
+      .orderBy(interactionsTable.createdAt);
 
   if (rows.length === 0) {
     res.json({ granularity: "day", points: [] });
@@ -181,32 +197,41 @@ router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
         : 0,
     }));
 
-  res.json({ granularity, points });
+    res.json({ granularity, points });
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to fetch chart data");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
 });
 
 // DELETE /interactions/:id
 router.delete("/interactions/:id", async (req, res): Promise<void> => {
-  const db = await getDb();
-  const interactionsTable = await getInteractionsTable();
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const params = DeleteInteractionParams.safeParse({ id: raw });
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const params = DeleteInteractionParams.safeParse({ id: raw });
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+
+    const { eq } = await import("drizzle-orm");
+    const [deleted] = await db
+      .delete(interactionsTable)
+      .where(eq(interactionsTable.id, params.data.id))
+      .returning();
+
+    if (!deleted) {
+      res.status(404).json({ error: "Interaction not found" });
+      return;
+    }
+
+    res.sendStatus(204);
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to delete interaction");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
-
-  const { eq } = await import("drizzle-orm");
-  const [deleted] = await db
-    .delete(interactionsTable)
-    .where(eq(interactionsTable.id, params.data.id))
-    .returning();
-
-  if (!deleted) {
-    res.status(404).json({ error: "Interaction not found" });
-    return;
-  }
-
-  res.sendStatus(204);
 });
 
 function getISOWeek(date: Date): number {
