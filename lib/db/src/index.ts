@@ -29,9 +29,26 @@ async function initDb() {
   return { dbInstance, table };
 }
 
-// Top-level await is supported in ESM, but we wrap initialization to be more robust
-await initDb();
+// Initialize DB and export getters to avoid top-level await issues in some environments
+let initialized = false;
 
+export const getDb = async () => {
+  if (!initialized) {
+    await initDb();
+    initialized = true;
+  }
+  return dbInstance;
+};
+
+export const getInteractionsTable = async () => {
+  if (!initialized) {
+    await initDb();
+    initialized = true;
+  }
+  return table;
+};
+
+// Deprecated: use async getters instead
 export const db = dbInstance;
 export const interactionsTable = table;
 export * from "./schema";
