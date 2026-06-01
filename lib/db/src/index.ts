@@ -54,9 +54,15 @@ async function initDb() {
     const sqlitePkg = 'better-sqlite3';
     const { drizzle: drizzleSqlite } = await import(sqliteDrizzlePkg);
     const Database = (await import(sqlitePkg)).default;
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const dbPath = path.resolve(__dirname, "../../../sqlite.db");
+    let dbPath: string;
+    try {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      dbPath = path.resolve(__dirname, "../../../sqlite.db");
+    } catch (e) {
+      // Fallback if import.meta.url is not available (e.g. bundled CJS)
+      dbPath = path.resolve(process.cwd(), "sqlite.db");
+    }
       const sqlite = new Database(dbPath);
       dbInstance = drizzleSqlite(sqlite, { schema });
       table = schema.interactionsTableSqlite;
