@@ -107,7 +107,12 @@ export default function Dashboard() {
                   <div key={corr.field} className="space-y-1">
                     <div className="flex justify-between items-center text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{corr.description}</span>
+                        <span className="font-medium">
+                          {corr.description}
+                          <span className="ml-1 opacity-60 text-[10px] font-normal">
+                            ({corr.mostCommonValue})
+                          </span>
+                        </span>
                         {corr.bestSubValue && (
                           <Badge variant="secondary" className="px-1 py-0 h-4 text-[10px] font-bold bg-success/10 text-success border-success/20">
                             {corr.bestSubValue}

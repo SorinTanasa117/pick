@@ -133,6 +133,7 @@ components:
       type: object
       required:
         - id
+        - face
         - height
         - figure
         - age
@@ -147,6 +148,8 @@ components:
         - createdAt
       properties:
         id:
+          type: integer
+        face:
           type: integer
         height:
           type: integer
@@ -176,6 +179,7 @@ components:
     InteractionInput:
       type: object
       required:
+        - face
         - height
         - figure
         - age
@@ -188,6 +192,8 @@ components:
         - lessonLearned
         - success
       properties:
+        face:
+          type: integer
         height:
           type: integer
         figure:
@@ -288,4 +294,6 @@ components:
         description:
           type: string
         bestSubValue:
+          type: string
+        mostCommonValue:
           type: string

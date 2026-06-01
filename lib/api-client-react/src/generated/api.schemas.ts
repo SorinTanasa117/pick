@@ -11,6 +11,7 @@ export interface HealthStatus {
 
 export interface Interaction {
   id: number;
+  face: number;
   height: number;
   figure: string;
   age: number;
@@ -26,6 +27,7 @@ export interface Interaction {
 }
 
 export interface InteractionInput {
+  face: number;
   height: number;
   figure: string;
   age: number;
@@ -81,4 +83,5 @@ export interface Correlation {
   type: CorrelationType;
   description?: string;
   bestSubValue?: string;
+  mostCommonValue?: string;
 }
