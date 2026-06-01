@@ -13,25 +13,39 @@ async function initDb() {
   if (dbInstance) return { dbInstance, table };
 
   try {
-    if (databaseUrl && databaseUrl.startsWith("postgres")) {
+    if (databaseUrl && (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql"))) {
       console.log("Initializing database with Postgres (Neon)");
       // Strip potentially problematic parameters for the serverless HTTP driver
       // such as sslmode=require and channel_binding=require if they are present
       let cleanUrl = databaseUrl;
       try {
         const url = new URL(databaseUrl);
-        url.searchParams.delete("sslmode");
-        url.searchParams.delete("channel_binding");
-        cleanUrl = url.toString();
-        console.log("Cleaned DATABASE_URL for Neon HTTP driver");
+        const paramsToRemove = ["sslmode", "channel_binding"];
+        let removed = false;
+        paramsToRemove.forEach(param => {
+          if (url.searchParams.has(param)) {
+            url.searchParams.delete(param);
+            removed = true;
+          }
+        });
+        if (removed) {
+          cleanUrl = url.toString();
+          console.log("Cleaned DATABASE_URL for Neon HTTP driver (removed problematic params)");
+        }
       } catch (e) {
         console.error("Failed to parse DATABASE_URL as URL object", e);
       }
 
-      const sql = neon(cleanUrl);
-      dbInstance = drizzleNeon(sql, { schema });
-      table = schema.interactionsTablePg;
-      console.log("Postgres (Neon) initialization successful");
+      console.log(`Neon URL length: ${cleanUrl.length}`);
+      try {
+        const sql = neon(cleanUrl);
+        dbInstance = drizzleNeon(sql, { schema });
+        table = schema.interactionsTablePg;
+        console.log("Postgres (Neon) initialization successful");
+      } catch (neonError: any) {
+        console.error("Neon driver initialization failed:", neonError.message);
+        throw neonError;
+      }
     } else {
       console.log("Initializing database with SQLite");
     const { drizzle: drizzleSqlite } = await import('drizzle-orm/better-sqlite3');

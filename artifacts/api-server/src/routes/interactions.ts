@@ -52,9 +52,10 @@ router.post("/interactions", async (req, res): Promise<void> => {
     }
 
     const bodyCreatedAt = (req.body as any).createdAt;
+    const isPostgres = databaseUrl && (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql"));
     const data = {
       ...parsed.data,
-      createdAt: bodyCreatedAt ? (databaseUrl && databaseUrl.startsWith("postgres") ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00') : new Date(),
+      createdAt: bodyCreatedAt ? (isPostgres ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00') : new Date(),
     };
 
     const [row] = await db
