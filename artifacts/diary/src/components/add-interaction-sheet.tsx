@@ -17,9 +17,9 @@ export function AddInteractionSheet() {
   const [formData, setFormData] = useState<InteractionInput & { createdAt?: string }>({
     height: 160,
     figure: "Normal",
-    age: 18,
+    age: 22,
     company: "Alone",
-    attitude: "Neutral",
+    attitude: "Open",
     myMood: "Neutral",
     myPerformance: "OK",
     space: "On street",
@@ -38,7 +38,7 @@ export function AddInteractionSheet() {
       setFormData({
         height: 160,
         figure: "Normal",
-        age: 18,
+        age: 22,
         company: "Alone",
         attitude: "Open",
         myMood: "Neutral",
@@ -126,26 +126,40 @@ export function AddInteractionSheet() {
               <Label>Her Age</Label>
               <span className="text-xl font-bold font-mono text-primary">{formData.age}</span>
             </div>
-            <div className="pt-2 h-40 flex justify-center">
+            <div className="pt-2">
               <Slider 
-                orientation="vertical"
-                min={14} 
-                max={80} 
+                min={18}
+                max={35}
                 step={1}
                 value={[formData.age]} 
                 onValueChange={(val) => updateField('age', val[0])}
-                className="h-full"
               />
             </div>
           </div>
 
           <div className="space-y-3">
-            <Label>Her Company</Label>
-            <SegmentedPicker 
-              options={["Alone", "Waiting for friend", "Waiting for boyfriend", "With female friend"]} 
-              value={formData.company} 
-              onChange={(val) => updateField('company', val)} 
-            />
+            <div className="flex justify-between items-center">
+              <Label>Her Company</Label>
+              <span className="text-sm font-bold text-primary">{formData.company}</span>
+            </div>
+            <div className="pt-2">
+              <Slider
+                min={0}
+                max={4}
+                step={1}
+                value={[
+                  ["Alone", "Waiting for friend", "With female friend", "With female Friends", "Waiting for boyfriend"].indexOf(formData.company)
+                ]}
+                onValueChange={(val) => {
+                  const options = ["Alone", "Waiting for friend", "With female friend", "With female Friends", "Waiting for boyfriend"];
+                  updateField('company', options[val[0]]);
+                }}
+              />
+              <div className="flex justify-between mt-1 px-1">
+                <span className="text-[10px] text-muted-foreground italic">Socially Isolated</span>
+                <span className="text-[10px] text-muted-foreground italic">Socially Taken</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-3">

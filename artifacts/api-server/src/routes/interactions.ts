@@ -242,12 +242,15 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
   try {
     const db = await getDb();
     const interactionsTable = await getInteractionsTable();
-    const rows = await db.select().from(interactionsTable);
+    const allRows = await db.select().from(interactionsTable).orderBy(interactionsTable.createdAt);
 
-    if (rows.length < 2) {
+    // Only allow update of the statistics every 5 entries
+    const limit = Math.floor(allRows.length / 5) * 5;
+    if (limit < 5) {
       res.json([]);
       return;
     }
+    const rows = allRows.slice(0, limit);
 
     const fieldsToAnalyze = [
       { key: "height", label: "Height", type: "numeric" },
@@ -257,6 +260,7 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
       { key: "myMood", label: "Mood", type: "ordinal" },
       { key: "myPerformance", label: "Performance", type: "ordinal" },
       { key: "space", label: "Space", type: "ordinal" },
+      { key: "company", label: "Company", type: "ordinal" },
     ];
 
     const MAPPINGS: Record<string, Record<string, number>> = {
@@ -268,10 +272,17 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
         Club: 0,
         Meetup: 1,
         "Metro station": 2,
-        Václavská: 3,
+        Václavská: 3, // Center
         Naplavka: 4,
         "In park": 5,
         "On street": 6,
+      },
+      company: {
+        "Alone": 0,
+        "Waiting for friend": 1,
+        "With female friend": 2,
+        "With female Friends": 3,
+        "Waiting for boyfriend": 4,
       },
     };
 
@@ -279,19 +290,23 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
       const y = rows.map((r: any) => (r.success ? 1 : 0));
       let x: number[] = [];
       const categoricalCounts: Record<string, { total: number; successes: number }> = {};
+      const successValues: number[] = [];
 
       for (const row of rows) {
         const val = (row as any)[field.key];
-
-        // Track categorical data for "best sub-value"
         const stringVal = String(val);
+
         if (!categoricalCounts[stringVal]) {
           categoricalCounts[stringVal] = { total: 0, successes: 0 };
         }
         categoricalCounts[stringVal].total++;
-        if (row.success) categoricalCounts[stringVal].successes++;
+        if (row.success) {
+          categoricalCounts[stringVal].successes++;
+          if (field.type === "numeric") {
+            successValues.push(Number(val));
+          }
+        }
 
-        // Get numeric value for correlation
         if (field.type === "numeric") {
           x.push(Number(val));
         } else {
@@ -304,29 +319,38 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
 
       // Determine best sub-value
       let bestSubValue = "";
-      let maxRate = -1;
+      let maxSuccesses = 0;
+      let modeValue = "";
+
       for (const [val, stats] of Object.entries(categoricalCounts)) {
-        const rate = stats.successes / stats.total;
-        // Only consider if at least 1 success or multiple attempts
-        if (rate > maxRate) {
-          maxRate = rate;
-          bestSubValue = val;
+        if (stats.successes > maxSuccesses) {
+          maxSuccesses = stats.successes;
+          modeValue = val;
         }
       }
 
-      // Generate description
-      let description = "";
-      if (field.type === "numeric" || field.key === "space") {
-        const direction = r > 0 ? "positive" : "negative";
-        let trend = "";
-        if (field.key === "height") trend = r > 0 ? "the taller the more successes" : "the shorter the more successes";
-        else if (field.key === "age") trend = r > 0 ? "the older the more successes" : "the younger the more successes";
-        else if (field.key === "space") trend = r > 0 ? "more outside = more success" : "more inside = more success";
-        else trend = r > 0 ? "higher value = more success" : "lower value = more success";
+      // If no value is more than 2 times present, leave it blank
+      if (maxSuccesses > 2) {
+        bestSubValue = modeValue;
+      }
 
-        description = `${field.label} - ${direction} (${trend})`;
-      } else {
-        description = `${field.label} - ${bestSubValue}`;
+      // Generate description
+      let description = field.label;
+      if (field.type === "numeric") {
+        // For numeric, "closest number" associated with success
+        // Use the mode of successful records if it's strong enough, else mean
+        if (maxSuccesses > 2) {
+          bestSubValue = modeValue;
+        } else {
+          bestSubValue = "";
+        }
+      }
+
+      // If most repeated values are in the negative range also don't show value.
+      // Interpreting as: if correlation is negative, hide the value?
+      // "We want to see what works, not what doesn't."
+      if (r < 0) {
+        bestSubValue = "";
       }
 
       return {
