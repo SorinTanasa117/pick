@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm run build && cross-env PORT=3000 NODE_ENV=development pnpm run start",
+    "dev": "cross-env PORT=3000 NODE_ENV=development tsx ./src/index.ts",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
