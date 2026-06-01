@@ -273,10 +273,10 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
         Club: 0,
         Meetup: 1,
         "Metro station": 2,
-        Václavská: 3, // Center
-        Naplavka: 4,
-        "In park": 5,
-        "On street": 6,
+        "In park": 3,
+        "Václavská": 4,
+        "On street": 5,
+        "Naplavka": 6,
       },
       company: {
         "Alone": 0,

@@ -156,28 +156,12 @@ export function AddInteractionSheet() {
           </div>
 
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label>Her company</Label>
-              <span className="text-sm font-bold text-primary">{formData.company}</span>
-            </div>
-            <div className="pt-2">
-              <Slider
-                min={0}
-                max={4}
-                step={1}
-                value={[
-                  ["Alone", "Waiting for friend", "With female friend", "With female Friends", "Waiting for boyfriend"].indexOf(formData.company)
-                ]}
-                onValueChange={(val) => {
-                  const options = ["Alone", "Waiting for friend", "With female friend", "With female Friends", "Waiting for boyfriend"];
-                  updateField('company', options[val[0]]);
-                }}
-              />
-              <div className="flex justify-between mt-1 px-1">
-                <span className="text-[10px] text-muted-foreground italic">Socially Isolated</span>
-                <span className="text-[10px] text-muted-foreground italic">Socially Taken</span>
-              </div>
-            </div>
+            <Label>Her company</Label>
+            <SegmentedPicker
+              options={["Alone", "Waiting for friend", "With female friend", "With female Friends", "Waiting for boyfriend"]}
+              value={formData.company}
+              onChange={(val) => updateField('company', val)}
+            />
           </div>
 
           <div className="space-y-3">
@@ -210,7 +194,7 @@ export function AddInteractionSheet() {
           <div className="space-y-3">
             <Label>The space</Label>
             <SegmentedPicker 
-              options={["On street", "In park", "Metro station", "Meetup", "Club", "Naplavka", "Václavská"]} 
+              options={["Club", "Meetup", "Metro station", "In park", "Václavská", "On street", "Naplavka"]}
               value={formData.space} 
               onChange={(val) => updateField('space', val)} 
             />
