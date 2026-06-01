@@ -11,10 +11,15 @@ import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 export default function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useGetInteractionStats();
-  const { data: chartData, isLoading: chartLoading } = useGetChartData();
-  const { data: interactions, isLoading: interactionsLoading } = useListInteractions();
+  const { data: stats, isLoading: statsLoading, error: statsError } = useGetInteractionStats();
+  const { data: chartData, isLoading: chartLoading, error: chartError } = useGetChartData();
+  const { data: interactions, isLoading: interactionsLoading, error: interactionsError } = useListInteractions();
+
+  const combinedError = (statsError || chartError || interactionsError) as any;
   
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -48,6 +53,26 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Diary</h1>
           <p className="text-muted-foreground text-sm font-mono mt-1">Field Journal</p>
         </header>
+
+        {combinedError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {combinedError.message || "An unexpected error occurred."}
+              {combinedError.data?.details && (
+                <div className="mt-2 text-xs font-mono bg-destructive/10 p-2 rounded">
+                  {combinedError.data.details}
+                </div>
+              )}
+              {combinedError.status === 502 && (
+                <div className="mt-2 text-xs italic">
+                  Tip: A 502 error on Netlify often means the backend function crashed. Check Netlify function logs for details.
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Stats Grid */}
         <section className="grid grid-cols-2 gap-3">
