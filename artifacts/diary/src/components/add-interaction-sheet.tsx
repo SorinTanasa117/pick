@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useCreateInteraction, getListInteractionsQueryKey, getGetInteractionStatsQueryKey, getGetChartDataQueryKey, InteractionInput } from "@workspace/api-client-react";
+import { useCreateInteraction, getListInteractionsQueryKey, getGetInteractionStatsQueryKey, getGetChartDataQueryKey, InteractionInput, getGetCorrelationsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -59,6 +59,7 @@ export function AddInteractionSheet() {
         queryClient.invalidateQueries({ queryKey: getListInteractionsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetInteractionStatsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetChartDataQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetCorrelationsQueryKey() });
         setOpen(false);
       }
     });

@@ -55,7 +55,9 @@ router.post("/interactions", async (req, res): Promise<void> => {
     const isPostgres = databaseUrl && (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql"));
     const data = {
       ...parsed.data,
-      createdAt: bodyCreatedAt ? (isPostgres ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00') : new Date(),
+      createdAt: bodyCreatedAt
+        ? (isPostgres ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00')
+        : (isPostgres ? new Date() : new Date().toISOString().replace('T', ' ').slice(0, 19)),
     };
 
     const [row] = await db
@@ -234,6 +236,150 @@ router.delete("/interactions/:id", async (req, res): Promise<void> => {
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
+
+// GET /interactions/correlations
+router.get("/interactions/correlations", async (req, res): Promise<void> => {
+  try {
+    const db = await getDb();
+    const interactionsTable = await getInteractionsTable();
+    const rows = await db.select().from(interactionsTable);
+
+    if (rows.length < 2) {
+      res.json([]);
+      return;
+    }
+
+    const fieldsToAnalyze = [
+      { key: "height", label: "Height", type: "numeric" },
+      { key: "age", label: "Age", type: "numeric" },
+      { key: "figure", label: "Figure", type: "ordinal" },
+      { key: "attitude", label: "Attitude", type: "ordinal" },
+      { key: "myMood", label: "Mood", type: "ordinal" },
+      { key: "myPerformance", label: "Performance", type: "ordinal" },
+      { key: "space", label: "Space", type: "ordinal" },
+    ];
+
+    const MAPPINGS: Record<string, Record<string, number>> = {
+      figure: { "Super thin": 0, "Slim": 1, "Normal": 2, "Slightly chubby": 3 },
+      attitude: { "Suspicious": 0, "Open": 1, "Friendly": 2, "Flirt": 3 },
+      myMood: { "Not feeling it": 0, "Neutral": 1, "Excited": 2 },
+      myPerformance: { "Total wreck": 0, "Fumbling": 1, "OK": 2, "Good": 3, "Excellent": 4 },
+      space: {
+        Club: 0,
+        Meetup: 1,
+        "Metro station": 2,
+        Václavská: 3,
+        Naplavka: 4,
+        "In park": 5,
+        "On street": 6,
+      },
+    };
+
+    const results = fieldsToAnalyze.map((field) => {
+      const y = rows.map((r: any) => (r.success ? 1 : 0));
+      let x: number[] = [];
+      const categoricalCounts: Record<string, { total: number; successes: number }> = {};
+
+      for (const row of rows) {
+        const val = (row as any)[field.key];
+
+        // Track categorical data for "best sub-value"
+        const stringVal = String(val);
+        if (!categoricalCounts[stringVal]) {
+          categoricalCounts[stringVal] = { total: 0, successes: 0 };
+        }
+        categoricalCounts[stringVal].total++;
+        if (row.success) categoricalCounts[stringVal].successes++;
+
+        // Get numeric value for correlation
+        if (field.type === "numeric") {
+          x.push(Number(val));
+        } else {
+          x.push(MAPPINGS[field.key]?.[val] ?? 0);
+        }
+      }
+
+      const r = calculateCorrelation(x, y);
+      const ci = calculateConfidenceInterval(r, x.length);
+
+      // Determine best sub-value
+      let bestSubValue = "";
+      let maxRate = -1;
+      for (const [val, stats] of Object.entries(categoricalCounts)) {
+        const rate = stats.successes / stats.total;
+        // Only consider if at least 1 success or multiple attempts
+        if (rate > maxRate) {
+          maxRate = rate;
+          bestSubValue = val;
+        }
+      }
+
+      // Generate description
+      let description = "";
+      if (field.type === "numeric" || field.key === "space") {
+        const direction = r > 0 ? "positive" : "negative";
+        let trend = "";
+        if (field.key === "height") trend = r > 0 ? "the taller the more successes" : "the shorter the more successes";
+        else if (field.key === "age") trend = r > 0 ? "the older the more successes" : "the younger the more successes";
+        else if (field.key === "space") trend = r > 0 ? "more outside = more success" : "more inside = more success";
+        else trend = r > 0 ? "higher value = more success" : "lower value = more success";
+
+        description = `${field.label} - ${direction} (${trend})`;
+      } else {
+        description = `${field.label} - ${bestSubValue}`;
+      }
+
+      return {
+        field: field.label,
+        correlation: r,
+        confidenceInterval: ci,
+        type: field.type === "numeric" ? "numeric" : "categorical",
+        description,
+        bestSubValue,
+      };
+    });
+
+    // Sort by absolute correlation strength descending
+    results.sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation));
+
+    res.json(results);
+  } catch (error: any) {
+    req.log.error({ err: error }, "Failed to calculate correlations");
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+function calculateCorrelation(x: number[], y: number[]) {
+  const n = x.length;
+  if (n < 2) return 0;
+
+  const sumX = x.reduce((a, b) => a + b, 0);
+  const sumY = y.reduce((a, b) => a + b, 0);
+  const sumXY = x.reduce((a, b, i) => a + b * y[i], 0);
+  const sumX2 = x.reduce((a, b) => a + b * b, 0);
+  const sumY2 = y.reduce((a, b) => a + b * b, 0);
+
+  const numerator = n * sumXY - sumX * sumY;
+  const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+  if (denominator === 0) return 0;
+  return numerator / denominator;
+}
+
+function calculateConfidenceInterval(r: number, n: number) {
+  if (n <= 3) return [r, r];
+  // Cap r to avoid infinity in Fisher transformation
+  const cappedR = Math.max(-0.999, Math.min(0.999, r));
+  const z = 0.5 * Math.log((1 + cappedR) / (1 - cappedR));
+  const se = 1 / Math.sqrt(n - 3);
+  const zLow = z - 1.96 * se;
+  const zHigh = z + 1.96 * se;
+
+  const rLow = (Math.exp(2 * zLow) - 1) / (Math.exp(2 * zLow) + 1);
+  const rHigh = (Math.exp(2 * zHigh) - 1) / (Math.exp(2 * zHigh) + 1);
+
+  return [rLow, rHigh];
+}
 
 function getISOWeek(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
