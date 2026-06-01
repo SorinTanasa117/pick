@@ -29,14 +29,15 @@ export function InteractionDetailSheet({ interaction, open, onOpenChange }: Inte
 
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
           <div className="grid grid-cols-2 gap-6">
-            <DetailItem label="Height" value={`${interaction.height} cm`} />
-            <DetailItem label="Figure" value={interaction.figure} />
-            <DetailItem label="Age" value={interaction.age.toString()} />
-            <DetailItem label="Company" value={interaction.company} />
-            <DetailItem label="Attitude" value={interaction.attitude} />
-            <DetailItem label="Space" value={interaction.space} />
-            <DetailItem label="My Mood" value={interaction.myMood} />
-            <DetailItem label="Performance" value={interaction.myPerformance} />
+            <DetailItem label="Her face" value={interaction.face.toString()} />
+            <DetailItem label="Her age" value={interaction.age.toString()} />
+            <DetailItem label="Her height" value={`${interaction.height} cm`} />
+            <DetailItem label="Her figure" value={interaction.figure} />
+            <DetailItem label="Her company" value={interaction.company} />
+            <DetailItem label="Her attitude" value={interaction.attitude} />
+            <DetailItem label="My mood" value={interaction.myMood} />
+            <DetailItem label="My performance" value={interaction.myPerformance} />
+            <DetailItem label="The space" value={interaction.space} />
           </div>
 
           <Separator />
