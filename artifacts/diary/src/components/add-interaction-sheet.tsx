@@ -65,7 +65,7 @@ export function AddInteractionSheet() {
     });
   };
 
-  const updateField = (field: keyof InteractionInput, value: any) => {
+  const updateField = (field: keyof InteractionInput | 'createdAt', value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
