@@ -1,7 +1,5 @@
 import { pgTable, text, integer, boolean, timestamp, serial } from "drizzle-orm/pg-core";
 import { sqliteTable, text as sqliteText, integer as sqliteInteger } from "drizzle-orm/sqlite-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
 import { sql } from "drizzle-orm";
 
 // PostgreSQL Schema
@@ -42,9 +40,4 @@ export const interactionsTableSqlite = sqliteTable("interactions", {
     .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
-export const insertInteractionSchema = (createInsertSchema(interactionsTablePg) as any).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertInteraction = z.infer<typeof insertInteractionSchema>;
 export type Interaction = typeof interactionsTablePg.$inferSelect;
