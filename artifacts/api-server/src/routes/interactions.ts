@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc } from "drizzle-orm";
-import { db, interactionsTable } from "@workspace/db";
+import { getDb, getInteractionsTable } from "@workspace/db";
 import {
   CreateInteractionBody,
   DeleteInteractionParams,
@@ -19,6 +19,8 @@ const parseDate = (d: any): Date => {
 
 // GET /interactions — list all
 router.get("/interactions", async (req, res): Promise<void> => {
+  const db = await getDb();
+  const interactionsTable = await getInteractionsTable();
   const rows = await db
     .select()
     .from(interactionsTable)
@@ -34,6 +36,8 @@ router.get("/interactions", async (req, res): Promise<void> => {
 
 // POST /interactions — create
 router.post("/interactions", async (req, res): Promise<void> => {
+  const db = await getDb();
+  const interactionsTable = await getInteractionsTable();
   const parsed = CreateInteractionBody.safeParse(req.body);
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.message }, "Invalid interaction input");
@@ -60,6 +64,8 @@ router.post("/interactions", async (req, res): Promise<void> => {
 
 // GET /interactions/stats
 router.get("/interactions/stats", async (_req, res): Promise<void> => {
+  const db = await getDb();
+  const interactionsTable = await getInteractionsTable();
   const rows = await db
     .select()
     .from(interactionsTable)
@@ -107,6 +113,8 @@ router.get("/interactions/stats", async (_req, res): Promise<void> => {
 
 // GET /interactions/chart-data
 router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
+  const db = await getDb();
+  const interactionsTable = await getInteractionsTable();
   const rows = await db
     .select()
     .from(interactionsTable)
@@ -178,6 +186,8 @@ router.get("/interactions/chart-data", async (_req, res): Promise<void> => {
 
 // DELETE /interactions/:id
 router.delete("/interactions/:id", async (req, res): Promise<void> => {
+  const db = await getDb();
+  const interactionsTable = await getInteractionsTable();
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteInteractionParams.safeParse({ id: raw });
   if (!params.success) {
