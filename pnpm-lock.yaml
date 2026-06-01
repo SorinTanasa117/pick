@@ -236,10 +236,6 @@ importers:
         version: 3.1.0
 
   artifacts/diary:
-    dependencies:
-      react-form:
-        specifier: ^4.0.1
-        version: 4.0.1(prop-types@15.8.1)(react@19.1.0)
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -355,9 +351,6 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.15)
-      '@types/react-form':
-        specifier: ^4.0.6
-        version: 4.0.6
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 5.2.0(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
@@ -1762,9 +1755,6 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
-  '@types/react-form@4.0.6':
-    resolution: {integrity: sha512-gbwxd3fx1O8kuZfgWiQoU4J/gJS4HBJjyH0q4b33TOWBBR06jzVfLFYIHOQq2G5V6k0y0Rv+TzlWuNW/7j3S3w==}
-
   '@types/react@19.2.15':
     resolution: {integrity: sha512-eRwcGNHve+E8qtEQSSRl6urh+rFop4v8gm6O8rGv25CodbvFdLjA1vVQ1KkiFE0w0UPOnb8tDiFKL5lp0rtY5Q==}
 
@@ -2855,12 +2845,6 @@ packages:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
       react: ^19.1.0
-
-  react-form@4.0.1:
-    resolution: {integrity: sha512-vhsCuBLZJYjm6vd8TBxIhIWeB/8Jg4mmmiR3Zj+1zIGBM39qJf1CLqekadLp0J9NeW0EsZxUnBtbmEnMeZ/7Pw==}
-    peerDependencies:
-      prop-types: ^15.5.4
-      react: ^16.8.3
 
   react-hook-form@7.76.1:
     resolution: {integrity: sha512-rYM7tPiWlu3nZchkR/ex7piyzui2vFPyaLnXnI/RnblB/L4qfMmyses8llJVtF1NpE9WBBsJlGtcSZzPCXW1qQ==}
@@ -4567,10 +4551,6 @@ snapshots:
     dependencies:
       '@types/react': 19.2.15
 
-  '@types/react-form@4.0.6':
-    dependencies:
-      '@types/react': 19.2.15
-
   '@types/react@19.2.15':
     dependencies:
       csstype: 3.2.3
@@ -5559,11 +5539,6 @@ snapshots:
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
-
-  react-form@4.0.1(prop-types@15.8.1)(react@19.1.0):
-    dependencies:
-      prop-types: 15.8.1
-      react: 19.1.0
 
   react-hook-form@7.76.1(react@19.1.0):
     dependencies:
