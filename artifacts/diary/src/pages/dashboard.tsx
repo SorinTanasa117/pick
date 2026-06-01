@@ -1,7 +1,7 @@
 import { useMemo, useState, MouseEvent } from "react";
-import { useGetInteractionStats, useGetChartData, useListInteractions, getListInteractionsQueryKey, getGetInteractionStatsQueryKey, getGetChartDataQueryKey, useDeleteInteraction, Interaction } from "@workspace/api-client-react";
+import { useGetInteractionStats, useGetChartData, useListInteractions, getListInteractionsQueryKey, getGetInteractionStatsQueryKey, getGetChartDataQueryKey, useDeleteInteraction, Interaction, useGetCorrelations, getGetCorrelationsQueryKey } from "@workspace/api-client-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, TrendingUp } from "lucide-react";
 import { AddInteractionSheet } from "@/components/add-interaction-sheet";
 import { InteractionDetailSheet } from "@/components/interaction-detail-sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +18,9 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading, error: statsError } = useGetInteractionStats();
   const { data: chartData, isLoading: chartLoading, error: chartError } = useGetChartData();
   const { data: interactions, isLoading: interactionsLoading, error: interactionsError } = useListInteractions();
+  const { data: correlations, isLoading: correlationsLoading, error: correlationsError } = useGetCorrelations();
 
-  const combinedError = (statsError || chartError || interactionsError) as any;
+  const combinedError = (statsError || chartError || interactionsError || correlationsError) as any;
   
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -87,6 +88,54 @@ export default function Dashboard() {
               <StatCard title="Days passed" value={stats?.totalDaysPassed} loading={statsLoading} centered />
             </div>
           </div>
+        </section>
+
+        {/* Correlations */}
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Success Correlations
+          </h2>
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-4 space-y-4">
+              {correlationsLoading ? (
+                Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-10 bg-muted animate-pulse rounded-md" />)
+              ) : !correlations || correlations.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Not enough data to draw correlations.</p>
+              ) : (
+                correlations.map((corr) => (
+                  <div key={corr.field} className="space-y-1">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">{corr.description}</span>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        r = {corr.correlation.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="relative h-2 w-full bg-muted rounded-full overflow-hidden">
+                      {/* Confidence Interval */}
+                      <div
+                        className="absolute h-full bg-primary/20"
+                        style={{
+                          left: `${((corr.confidenceInterval[0] + 1) / 2) * 100}%`,
+                          right: `${100 - ((corr.confidenceInterval[1] + 1) / 2) * 100}%`
+                        }}
+                      />
+                      {/* Correlation Point */}
+                      <div
+                        className={cn(
+                          "absolute top-0 h-full w-1 rounded-full",
+                          corr.correlation > 0.3 ? "bg-success" : corr.correlation < -0.3 ? "bg-destructive" : "bg-primary"
+                        )}
+                        style={{ left: `${((corr.correlation + 1) / 2) * 100}%` }}
+                      />
+                      {/* Zero line */}
+                      <div className="absolute top-0 left-1/2 h-full w-px bg-border" />
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         {/* Charts */}

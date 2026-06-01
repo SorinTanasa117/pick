@@ -87,6 +87,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/ChartData"
 
+  /interactions/correlations:
+    get:
+      operationId: getCorrelations
+      tags: [interactions]
+      summary: Get correlations between variables and success
+      responses:
+        "200":
+          description: Correlation data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Correlation"
+
   /interactions/{id}:
     delete:
       operationId: deleteInteraction
@@ -248,3 +263,29 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ChartDataPoint"
+
+    Correlation:
+      type: object
+      required:
+        - field
+        - correlation
+        - confidenceInterval
+        - type
+      properties:
+        field:
+          type: string
+        correlation:
+          type: number
+        confidenceInterval:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+        type:
+          type: string
+          enum: [numeric, categorical]
+        description:
+          type: string
+        bestSubValue:
+          type: string
