@@ -1,7 +1,5 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
 import * as schema from "./schema";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,6 +14,8 @@ if (databaseUrl && databaseUrl.startsWith("postgres")) {
   dbInstance = drizzleNeon(sql, { schema });
   table = schema.interactionsTablePg;
 } else {
+  const { drizzle: drizzleSqlite } = await import('drizzle-orm/better-sqlite3');
+  const Database = (await import('better-sqlite3')).default;
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const dbPath = path.resolve(__dirname, "../../../sqlite.db");

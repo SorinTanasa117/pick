@@ -11,21 +11,23 @@ import { Switch } from "@/components/ui/switch";
 import { useCreateInteraction, getListInteractionsQueryKey, getGetInteractionStatsQueryKey, getGetChartDataQueryKey, InteractionInput } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 export function AddInteractionSheet() {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<InteractionInput>({
+  const [formData, setFormData] = useState<InteractionInput & { createdAt?: string }>({
     height: 160,
     figure: "Normal",
     age: 18,
     company: "Alone",
-    attitude: "Neutral", // Wait, options are: Suspicious, Open, Friendly, Flirt
+    attitude: "Neutral",
     myMood: "Neutral",
     myPerformance: "OK",
     space: "On street",
     notes: "",
     lessonLearned: "",
     success: false,
+    createdAt: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
   });
 
   const queryClient = useQueryClient();
@@ -46,6 +48,7 @@ export function AddInteractionSheet() {
         notes: "",
         lessonLearned: "",
         success: false,
+        createdAt: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       });
     }
     setOpen(o);
@@ -83,6 +86,16 @@ export function AddInteractionSheet() {
         
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
           
+          <div className="space-y-3">
+            <Label>Date & Time</Label>
+            <input
+              type="datetime-local"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={formData.createdAt}
+              onChange={(e) => updateField('createdAt', e.target.value)}
+            />
+          </div>
+
           <div className="space-y-3">
             <Label>Her Height</Label>
             <Select value={formData.height.toString()} onValueChange={(val) => updateField('height', parseInt(val, 10))}>
