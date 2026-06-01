@@ -94,7 +94,4 @@ export const getInteractionsTable = async () => {
   return table;
 };
 
-// Deprecated: use async getters instead
-export const db = undefined as any;
-export const interactionsTable = undefined as any;
 export * from "./schema";
