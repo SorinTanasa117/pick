@@ -106,7 +106,14 @@ export default function Dashboard() {
                 correlations.map((corr) => (
                   <div key={corr.field} className="space-y-1">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="font-medium">{corr.description}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{corr.description}</span>
+                        {corr.bestSubValue && (
+                          <Badge variant="secondary" className="px-1 py-0 h-4 text-[10px] font-bold bg-success/10 text-success border-success/20">
+                            {corr.bestSubValue}
+                          </Badge>
+                        )}
+                      </div>
                       <span className="text-xs font-mono text-muted-foreground">
                         r = {corr.correlation.toFixed(2)}
                       </span>
