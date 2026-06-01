@@ -48,8 +48,12 @@ async function initDb() {
       }
     } else {
       console.log("Initializing database with SQLite");
-    const { drizzle: drizzleSqlite } = await import('drizzle-orm/better-sqlite3');
-    const Database = (await import('better-sqlite3')).default;
+    // Use dynamic import with variable to hide it from static analysis/bundlers
+    // as better-sqlite3 is a native module and may fail to bundle or be absent in serverless
+    const sqliteDrizzlePkg = 'drizzle-orm/better-sqlite3';
+    const sqlitePkg = 'better-sqlite3';
+    const { drizzle: drizzleSqlite } = await import(sqliteDrizzlePkg);
+    const Database = (await import(sqlitePkg)).default;
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const dbPath = path.resolve(__dirname, "../../../sqlite.db");
