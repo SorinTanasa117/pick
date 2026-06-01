@@ -348,7 +348,7 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
         // For numeric, "closest number" associated with success
         // Use the mode of successful records if it's strong enough, else mean
         if (maxSuccesses > 2) {
-          bestSubValue = modeValue;
+          bestSubValue = modeSuccessValue;
         } else {
           bestSubValue = "";
         }
