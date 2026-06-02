@@ -76,6 +76,7 @@ export function AddInteractionSheet() {
       <SheetTrigger asChild>
         <Button 
           size="icon" 
+          aria-label="Add encounter"
           className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg shadow-primary/20"
         >
           <Plus className="h-6 w-6" />
