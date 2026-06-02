@@ -25,13 +25,9 @@ router.get("/diag", async (req, res) => {
     // Try a simple query
     try {
       // We don't know the table name for sure without importing schema, but we can try a raw query if it's PG
-      if (process.env.DATABASE_URL?.startsWith("postgres") || process.env.DATABASE_URL?.startsWith("postgresql")) {
-         // @ts-ignore
-         const result = await db.execute(sql`SELECT 1 as test`);
-         diag.dbQuery = "Success";
-      } else {
-         diag.dbQuery = "Skipped (SQLite diag not implemented here)";
-      }
+      // @ts-ignore
+      const result = await db.execute(sql`SELECT 1 as test`);
+      diag.dbQuery = "Success";
     } catch (queryErr: any) {
       diag.dbQueryError = queryErr.message;
     }

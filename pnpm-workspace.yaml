@@ -45,7 +45,6 @@ onlyBuiltDependencies:
   - esbuild
   - msw
   - unrs-resolver
-  - better-sqlite3
   - '@tailwindcss/oxide'
   - lightningcss
 
@@ -128,7 +127,6 @@ overrides:
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
 
-# CHANGED: Allow better-sqlite3 and esbuild compilation on local setups
+# CHANGED: Allow esbuild compilation on local setups
 allowBuilds:
-  better-sqlite3: true
   esbuild: true
