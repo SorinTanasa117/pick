@@ -253,7 +253,8 @@ router.get("/interactions/correlations", async (req, res): Promise<void> => {
     const rows = allRows.slice(0, limit);
 
     const fieldsToAnalyze = [
-      { key: "face", label: "Her face", type: "numeric" },
+      { key: "looks", label: "Her looks", type: "numeric" },
+      { key: "personality", label: "Her personality", type: "numeric" },
       { key: "age", label: "Her age", type: "numeric" },
       { key: "height", label: "Her height", type: "numeric" },
       { key: "figure", label: "Her figure", type: "ordinal" },

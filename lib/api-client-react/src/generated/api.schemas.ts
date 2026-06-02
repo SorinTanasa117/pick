@@ -11,7 +11,8 @@ export interface HealthStatus {
 
 export interface Interaction {
   id: number;
-  face: number;
+  looks: number;
+  personality: number;
   height: number;
   figure: string;
   age: number;
@@ -27,7 +28,8 @@ export interface Interaction {
 }
 
 export interface InteractionInput {
-  face: number;
+  looks: number;
+  personality: number;
   height: number;
   figure: string;
   age: number;

@@ -15,7 +15,8 @@ import { format } from "date-fns";
 export function AddInteractionSheet() {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<InteractionInput & { createdAt?: string }>({
-    face: 7,
+    looks: 7,
+    personality: 7,
     height: 160,
     figure: "Normal",
     age: 22,
@@ -37,7 +38,8 @@ export function AddInteractionSheet() {
   const handleOpenChange = (o: boolean) => {
     if (o) {
       setFormData({
-        face: 7,
+        looks: 7,
+        personality: 7,
         height: 160,
         figure: "Normal",
         age: 22,
@@ -101,16 +103,32 @@ export function AddInteractionSheet() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>Her face</Label>
-              <span className="text-xl font-bold font-mono text-primary">{formData.face}</span>
+              <Label>Her looks</Label>
+              <span className="text-xl font-bold font-mono text-primary">{formData.looks}</span>
             </div>
             <div className="pt-2">
               <Slider
                 min={5}
                 max={10}
                 step={1}
-                value={[formData.face]}
-                onValueChange={(val) => updateField('face', val[0])}
+                value={[formData.looks]}
+                onValueChange={(val) => updateField('looks', val[0])}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label>Her personality</Label>
+              <span className="text-xl font-bold font-mono text-primary">{formData.personality}</span>
+            </div>
+            <div className="pt-2">
+              <Slider
+                min={5}
+                max={10}
+                step={1}
+                value={[formData.personality]}
+                onValueChange={(val) => updateField('personality', val[0])}
               />
             </div>
           </div>

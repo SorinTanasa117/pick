@@ -7,7 +7,8 @@
  */
 
 export interface InteractionInput {
-  face: number;
+  looks: number;
+  personality: number;
   height: number;
   figure: string;
   age: number;

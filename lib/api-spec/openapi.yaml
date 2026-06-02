@@ -133,7 +133,8 @@ components:
       type: object
       required:
         - id
-        - face
+        - looks
+        - personality
         - height
         - figure
         - age
@@ -149,7 +150,9 @@ components:
       properties:
         id:
           type: integer
-        face:
+        looks:
+          type: integer
+        personality:
           type: integer
         height:
           type: integer
@@ -179,7 +182,8 @@ components:
     InteractionInput:
       type: object
       required:
-        - face
+        - looks
+        - personality
         - height
         - figure
         - age
@@ -192,7 +196,9 @@ components:
         - lessonLearned
         - success
       properties:
-        face:
+        looks:
+          type: integer
+        personality:
           type: integer
         height:
           type: integer
