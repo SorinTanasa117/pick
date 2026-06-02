@@ -8,7 +8,8 @@
 
 export interface Interaction {
   id: number;
-  face: number;
+  looks: number;
+  personality: number;
   height: number;
   figure: string;
   age: number;

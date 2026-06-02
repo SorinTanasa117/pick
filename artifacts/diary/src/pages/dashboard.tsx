@@ -238,16 +238,19 @@ export default function Dashboard() {
                       </Button>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 text-sm mt-3">
-                      <Badge variant="secondary" className="bg-secondary/50 font-normal">
-                        {interaction.age}y / {interaction.height}cm / {interaction.figure}
-                      </Badge>
-                      <Badge variant="secondary" className="bg-secondary/50 font-normal">
-                        {interaction.attitude}
-                      </Badge>
-                      <Badge variant="secondary" className="bg-secondary/50 font-normal">
-                        Perf: {interaction.myPerformance}
-                      </Badge>
+                    <div className="space-y-2 mt-3">
+                      <div className="flex flex-wrap gap-2 text-[11px]">
+                        <span className="text-muted-foreground uppercase font-bold tracking-tight">Her:</span>
+                        <Badge variant="secondary" className="bg-secondary/40 font-normal py-0 px-1.5 h-5">
+                          {interaction.age}y / {interaction.looks}L / {interaction.personality}P / {interaction.company} / {interaction.attitude}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-[11px]">
+                        <span className="text-muted-foreground uppercase font-bold tracking-tight">Me:</span>
+                        <Badge variant="secondary" className="bg-secondary/40 font-normal py-0 px-1.5 h-5">
+                          {interaction.myMood} / {interaction.myPerformance}
+                        </Badge>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

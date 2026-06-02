@@ -29,7 +29,8 @@ export function InteractionDetailSheet({ interaction, open, onOpenChange }: Inte
 
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
           <div className="grid grid-cols-2 gap-6">
-            <DetailItem label="Her face" value={interaction.face.toString()} />
+            <DetailItem label="Her looks" value={interaction.looks.toString()} />
+            <DetailItem label="Her personality" value={interaction.personality.toString()} />
             <DetailItem label="Her age" value={interaction.age.toString()} />
             <DetailItem label="Her height" value={`${interaction.height} cm`} />
             <DetailItem label="Her figure" value={interaction.figure} />

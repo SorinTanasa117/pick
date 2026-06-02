@@ -22,7 +22,8 @@ export const HealthCheckResponse = zod.object({
  */
 export const ListInteractionsResponseItem = zod.object({
   "id": zod.number(),
-  "face": zod.number(),
+  "looks": zod.number(),
+  "personality": zod.number(),
   "height": zod.number(),
   "figure": zod.string(),
   "age": zod.number(),
@@ -43,7 +44,8 @@ export const ListInteractionsResponse = zod.array(ListInteractionsResponseItem)
  * @summary Create a new interaction
  */
 export const CreateInteractionBody = zod.object({
-  "face": zod.number(),
+  "looks": zod.number(),
+  "personality": zod.number(),
   "height": zod.number(),
   "figure": zod.string(),
   "age": zod.number(),
