@@ -213,7 +213,7 @@ export function AddInteractionSheet() {
           <div className="space-y-3">
             <Label>The space</Label>
             <SegmentedPicker 
-              options={["Club", "Meetup", "Metro station", "In park", "Václavská", "On street", "Naplavka"]}
+              options={["Dating app", "Instagram", "House party", "Club", "Meetup", "Metro station", "In park", "Václavská", "On street", "Naplavka"]}
               value={formData.space} 
               onChange={(val) => updateField('space', val)} 
             />
