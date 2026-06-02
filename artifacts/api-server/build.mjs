@@ -30,8 +30,6 @@ async function buildAll() {
     external: [
       "*.node",
       "sharp",
-      "better-sqlite3",
-      "sqlite3",
       "canvas",
       "bcrypt",
       "argon2",
@@ -128,7 +126,6 @@ if (typeof import.meta !== 'undefined' && import.meta.url) {
     logLevel: "info",
     external: [
       "*.node",
-      "better-sqlite3",
       "pg-native",
     ],
     sourcemap: "linked",

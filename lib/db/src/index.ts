@@ -1,8 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
 import * as schema from "./schema";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -12,8 +10,12 @@ let table: any;
 async function initDb() {
   if (dbInstance) return { dbInstance, table };
 
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not defined");
+  }
+
   try {
-    if (databaseUrl && (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql"))) {
+    if (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql")) {
       console.log("Initializing database with Postgres (Neon)");
       // Strip potentially problematic parameters for the serverless HTTP driver
       // such as sslmode=require and channel_binding=require if they are present
@@ -47,26 +49,7 @@ async function initDb() {
         throw neonError;
       }
     } else {
-      console.log("Initializing database with SQLite");
-    // Use dynamic import with variable to hide it from static analysis/bundlers
-    // as better-sqlite3 is a native module and may fail to bundle or be absent in serverless
-    const sqliteDrizzlePkg = 'drizzle-orm/better-sqlite3';
-    const sqlitePkg = 'better-sqlite3';
-    const { drizzle: drizzleSqlite } = await import(sqliteDrizzlePkg);
-    const Database = (await import(sqlitePkg)).default;
-    let dbPath: string;
-    try {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      dbPath = path.resolve(__dirname, "../../../sqlite.db");
-    } catch (e) {
-      // Fallback if import.meta.url is not available (e.g. bundled CJS)
-      dbPath = path.resolve(process.cwd(), "sqlite.db");
-    }
-      const sqlite = new Database(dbPath);
-      dbInstance = drizzleSqlite(sqlite, { schema });
-      table = schema.interactionsTableSqlite;
-      console.log("SQLite initialization successful");
+        throw new Error("Only PostgreSQL is supported. DATABASE_URL must start with postgres:// or postgresql://");
     }
   } catch (error) {
     console.error("Database initialization failed:", error);

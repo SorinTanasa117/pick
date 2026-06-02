@@ -8,9 +8,7 @@ import {
 
 const router: IRouter = Router();
 
-const databaseUrl = process.env.DATABASE_URL;
-
-// Helper to handle SQLite dates
+// Helper to handle dates
 const parseDate = (d: any): Date => {
   if (d instanceof Date) return d;
   if (!d) return new Date();
@@ -52,12 +50,9 @@ router.post("/interactions", async (req, res): Promise<void> => {
     }
 
     const bodyCreatedAt = (req.body as any).createdAt;
-    const isPostgres = databaseUrl && (databaseUrl.startsWith("postgres") || databaseUrl.startsWith("postgresql"));
     const data = {
       ...parsed.data,
-      createdAt: bodyCreatedAt
-        ? (isPostgres ? new Date(bodyCreatedAt) : bodyCreatedAt.replace('T', ' ') + ':00')
-        : (isPostgres ? new Date() : new Date().toISOString().replace('T', ' ').slice(0, 19)),
+      createdAt: bodyCreatedAt ? new Date(bodyCreatedAt) : new Date(),
     };
 
     const [row] = await db
